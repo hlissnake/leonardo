@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "@/lib/apollo-client";
+import { AuthProvider } from "./authProvider";
 
 const config = defineConfig({
   theme: {
@@ -22,7 +23,9 @@ const system = createSystem(defaultConfig, config);
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ChakraProvider value={system}>
-      <ApolloProvider client={client}>{children}</ApolloProvider>
+      <ApolloProvider client={client}>
+        <AuthProvider>{children}</AuthProvider>
+      </ApolloProvider>
     </ChakraProvider>
   );
 }

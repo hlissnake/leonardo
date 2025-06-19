@@ -1,13 +1,9 @@
 "use client";
 
-import {
-  Container,
-  Heading,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { withAuth } from "@/providers/authProvider";
+import { Container, Heading, Text, VStack } from "@chakra-ui/react";
 
-export default function Home() {
+const Home = () => {
   return (
     <Container maxW="container.xl" py={10}>
       <VStack gap={8} alignItems="center">
@@ -23,4 +19,6 @@ export default function Home() {
       </VStack>
     </Container>
   );
-}
+};
+
+export default withAuth(Home);
