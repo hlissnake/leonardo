@@ -7,8 +7,10 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import { Text } from "@chakra-ui/react";
 
 const AuthContext = createContext<{
+  isLoading: boolean;
   isAuthenticated: boolean;
   login: (userName: string, jobTitle: string) => void;
   getUserInformation: () => {
@@ -16,6 +18,7 @@ const AuthContext = createContext<{
     jobTitle?: string;
   };
 }>({
+  isLoading: true,
   isAuthenticated: false,
   login: () => {},
   getUserInformation: () => ({
@@ -30,9 +33,10 @@ const AUTH_JOB_TITLE = "job_title";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
+  const [isLoading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
-  const isAuthenticated = !!userName && !!jobTitle;
 
   const login = useCallback(
     (_username: string, _jobTitle: string) => {
@@ -40,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(AUTH_JOB_TITLE, _jobTitle);
       setUserName(_username);
       setJobTitle(_jobTitle);
+      setIsAuthenticated(true);
       router.push("/");
     },
     [router]
@@ -58,11 +63,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const authJobTitle = localStorage.getItem(AUTH_JOB_TITLE);
     setUserName(authUsername ?? "");
     setJobTitle(authJobTitle ?? "");
+    setIsAuthenticated(!!authUsername && !!authJobTitle);
+    setLoading(false);
   }, []);
-
+  console.log("isAuthenticated", isAuthenticated);
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, getUserInformation }}
+      value={{ isLoading, isAuthenticated, login, getUserInformation }}
     >
       {children}
     </AuthContext.Provider>
@@ -75,17 +82,17 @@ export const withAuth = <T extends object>(
   Component: React.ComponentType<T>
 ) => {
   return function ProtectedRoute(props: T) {
-    const { isAuthenticated } = useAuth();
+    const { isLoading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-      if (!isAuthenticated) {
+      if (!isAuthenticated && !isLoading) {
         router.push("/login");
       }
-    }, [isAuthenticated, router]);
+    }, [isLoading, isAuthenticated, router]);
 
-    if (!isAuthenticated) {
-      return null; // or a spinner/loading indicator
+    if (!isAuthenticated && isLoading) {
+      return <Text>Checking User Information.....</Text>; // or a spinner/loading indicator
     }
 
     return <Component {...props} />;
