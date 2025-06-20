@@ -7,21 +7,23 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Text } from "@chakra-ui/react";
+import UserModal from "@/components/UserModal";
 
 const AuthContext = createContext<{
-  isLoading: boolean;
+  isLoaded: boolean;
   isAuthenticated: boolean;
   login: (userName: string, jobTitle: string) => void;
-  getUserInformation: () => {
-    userName?: string;
-    jobTitle?: string;
+  logout: () => void;
+  getUserInfo: () => {
+    userName: string | null;
+    jobTitle: string | null;
   };
 }>({
-  isLoading: true,
+  isLoaded: true,
   isAuthenticated: false,
   login: () => {},
-  getUserInformation: () => ({
+  logout: () => {},
+  getUserInfo: () => ({
     userName: "",
     jobTitle: "",
   }),
@@ -33,43 +35,45 @@ const AUTH_JOB_TITLE = "job_title";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
-  const [isLoading, setLoading] = useState(true);
+  const [isLoaded, setLoaded] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [jobTitle, setJobTitle] = useState("");
 
   const login = useCallback(
     (_username: string, _jobTitle: string) => {
       localStorage.setItem(AUTH_USERNAME, _username);
       localStorage.setItem(AUTH_JOB_TITLE, _jobTitle);
-      setUserName(_username);
-      setJobTitle(_jobTitle);
       setIsAuthenticated(true);
       router.push("/");
     },
     [router]
   );
 
-  const getUserInformation = useCallback(() => {
+  const logout = useCallback(() => {
+    localStorage.removeItem(AUTH_USERNAME);
+    localStorage.removeItem(AUTH_JOB_TITLE);
+    setIsAuthenticated(false);
+    router.push("/login");
+  }, [router]);
+
+  const getUserInfo = useCallback(() => {
+    const userName = localStorage.getItem(AUTH_USERNAME);
+    const jobTitle = localStorage.getItem(AUTH_JOB_TITLE);
     return {
       userName,
       jobTitle,
     };
-  }, [userName, jobTitle]);
+  }, []);
 
   useEffect(() => {
-    // Replace with your actual auth logic (cookie, localStorage, fetch)
     const authUsername = localStorage.getItem(AUTH_USERNAME);
     const authJobTitle = localStorage.getItem(AUTH_JOB_TITLE);
-    setUserName(authUsername ?? "");
-    setJobTitle(authJobTitle ?? "");
     setIsAuthenticated(!!authUsername && !!authJobTitle);
-    setLoading(false);
+    setLoaded(true);
   }, []);
-  console.log("isAuthenticated", isAuthenticated);
+
   return (
     <AuthContext.Provider
-      value={{ isLoading, isAuthenticated, login, getUserInformation }}
+      value={{ isLoaded, isAuthenticated, login, logout, getUserInfo }}
     >
       {children}
     </AuthContext.Provider>
@@ -82,19 +86,16 @@ export const withAuth = <T extends object>(
   Component: React.ComponentType<T>
 ) => {
   return function ProtectedRoute(props: T) {
-    const { isLoading, isAuthenticated } = useAuth();
-    const router = useRouter();
+    const { isLoaded, isAuthenticated } = useAuth();
 
-    useEffect(() => {
-      if (!isAuthenticated && !isLoading) {
-        router.push("/login");
-      }
-    }, [isLoading, isAuthenticated, router]);
-
-    if (!isAuthenticated && isLoading) {
-      return <Text>Checking User Information.....</Text>; // or a spinner/loading indicator
+    if (!isAuthenticated && isLoaded) {
+      return <UserModal />;
     }
 
-    return <Component {...props} />;
+    if (isAuthenticated && isLoaded) {
+      return <Component {...props} />;
+    }
+
+    return null;
   };
 };

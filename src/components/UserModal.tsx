@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -11,12 +11,15 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useAuth } from "@/providers/authProvider";
+import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function UserModal() {
+  const { isAuthenticated, login } = useAuth();
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [error, setError] = useState("");
-  const { login } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +29,12 @@ export default function LoginPage() {
       setError("please enter all the informatio above");
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <Container maxW="sm" py={16}>
