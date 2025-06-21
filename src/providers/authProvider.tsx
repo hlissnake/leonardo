@@ -6,7 +6,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
 import UserModal from "@/components/UserModal";
 
 const AuthContext = createContext<{
@@ -33,27 +32,20 @@ const AUTH_USERNAME = "user_name";
 const AUTH_JOB_TITLE = "job_title";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-
   const [isLoaded, setLoaded] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const login = useCallback(
-    (_username: string, _jobTitle: string) => {
-      localStorage.setItem(AUTH_USERNAME, _username);
-      localStorage.setItem(AUTH_JOB_TITLE, _jobTitle);
-      setIsAuthenticated(true);
-      router.push("/");
-    },
-    [router]
-  );
+  const login = useCallback((_username: string, _jobTitle: string) => {
+    localStorage.setItem(AUTH_USERNAME, _username);
+    localStorage.setItem(AUTH_JOB_TITLE, _jobTitle);
+    setIsAuthenticated(true);
+  }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(AUTH_USERNAME);
     localStorage.removeItem(AUTH_JOB_TITLE);
     setIsAuthenticated(false);
-    router.push("/login");
-  }, [router]);
+  }, []);
 
   const getUserInfo = useCallback(() => {
     const userName = localStorage.getItem(AUTH_USERNAME);
