@@ -1,80 +1,108 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Container,
-  Heading,
   Input,
-  VStack,
   Text,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  Portal,
+  Fieldset,
+  UseDialogReturn,
 } from "@chakra-ui/react";
-import { useAuth } from "@/providers/authProvider";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/UserAuthProvider";
 
-export default function UserModal() {
-  const { isAuthenticated, login } = useAuth();
-  const router = useRouter();
+interface Props {
+  dialog: UseDialogReturn;
+  isLogin?: boolean;
+}
 
-  const [username, setUsername] = useState("");
-  const [jobTitle, setJobTitle] = useState("");
+export default function UserModal({ isLogin = false, dialog }: Props) {
+  const { setUserInfo, getUserInfo } = useAuth();
+  const userInfo = getUserInfo();
+
+  const [username, setUsername] = useState(userInfo.userName || "");
+  const [jobTitle, setJobTitle] = useState(userInfo.jobTitle || "");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!!username && !!jobTitle) {
-      login(username, jobTitle);
-    } else {
-      setError("please enter all the informatio above");
-    }
-  };
-
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/");
-    }
-  }, [isAuthenticated, router]);
+    setUsername(userInfo.userName || "");
+    setJobTitle(userInfo.jobTitle || "");
+  }, [userInfo.userName, userInfo.jobTitle]);
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!!username && !!jobTitle) {
+        setUserInfo(username, jobTitle);
+        dialog.setOpen(false);
+      } else {
+        setError("please enter all the information above");
+      }
+    },
+    [dialog, jobTitle, setUserInfo, username]
+  );
 
   return (
-    <Container maxW="sm" py={16}>
-      <Box p={8} borderWidth={1} borderRadius="lg" boxShadow="md">
-        <Heading mb={6} size="lg" textAlign="center">
-          Login
-        </Heading>
-        <form onSubmit={handleSubmit}>
-          <VStack gap={4} alignItems="stretch">
-            <label htmlFor="username">
-              Username
-              <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-                required
-                mt={1}
-              />
-            </label>
-            <label htmlFor="jobTitle">
-              Job Title
-              <Input
-                id="jobTitle"
-                type="jobTitle"
-                value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
-                autoComplete="current-jobTitle"
-                required
-                mt={1}
-              />
-            </label>
-            {error && <Text color="red.500">{error}</Text>}
-            <Button colorScheme="blue" type="submit" w="full">
-              Login
-            </Button>
-          </VStack>
-        </form>
-      </Box>
-    </Container>
+    <Dialog.RootProvider value={dialog}>
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <DialogContent>
+            <form onSubmit={handleSubmit}>
+              <DialogHeader fontSize="lg" fontWeight="bold">
+                {isLogin ? "Login!" : "Edit Profile"}
+              </DialogHeader>
+              <Dialog.Body pb="4">
+                <Fieldset.Root>
+                  <Fieldset.Content>
+                    <Box gap="4">
+                      <label htmlFor="username">
+                        Username
+                        <Input
+                          id="username"
+                          type="text"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          autoComplete="username"
+                          required
+                          mt={1}
+                        />
+                      </label>
+                      <label htmlFor="jobTitle">
+                        Job Title
+                        <Input
+                          id="jobTitle"
+                          type="jobTitle"
+                          value={jobTitle}
+                          onChange={(e) => setJobTitle(e.target.value)}
+                          autoComplete="current-jobTitle"
+                          required
+                          mt={1}
+                        />
+                      </label>
+                      {error && <Text color="red.500">{error}</Text>}
+                    </Box>
+                  </Fieldset.Content>
+                </Fieldset.Root>
+              </Dialog.Body>
+              <Dialog.Footer>
+                {!isLogin && (
+                  <Dialog.ActionTrigger asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </Dialog.ActionTrigger>
+                )}
+                <Button type="submit" disabled={!!error}>
+                  Save
+                </Button>
+              </Dialog.Footer>
+            </form>
+          </DialogContent>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.RootProvider>
   );
 }

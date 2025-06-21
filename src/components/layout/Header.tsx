@@ -1,11 +1,12 @@
 "use client";
 
-import { useAuth } from "@/providers/authProvider";
 import { Box, Flex, Text, Spacer } from "@chakra-ui/react";
+
+import { useAuth } from "@/providers/UserAuthProvider";
 import Dropdown from "./Dropdown";
 
 export default function Header() {
-  const { getUserInfo, logout } = useAuth();
+  const { getUserInfo, logout, openUserModal, isAuthenticated } = useAuth();
   const userInfo = getUserInfo();
 
   const dropdownItems = [
@@ -16,7 +17,7 @@ export default function Header() {
   const handleDropdownAction = (action: string) => {
     switch (action) {
       case "profile":
-        console.log("Profile clicked");
+        openUserModal();
         break;
       case "logout":
         logout();
@@ -31,11 +32,13 @@ export default function Header() {
           Leonardo
         </Text>
         <Spacer />
-        <Dropdown
-          items={dropdownItems}
-          triggerText={userInfo.userName || "User"}
-          onAction={handleDropdownAction}
-        />
+        {isAuthenticated && (
+          <Dropdown
+            items={dropdownItems}
+            triggerText={userInfo.userName || "User"}
+            onAction={handleDropdownAction}
+          />
+        )}
       </Flex>
     </Box>
   );

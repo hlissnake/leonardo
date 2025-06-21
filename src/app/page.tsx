@@ -1,6 +1,6 @@
 "use client";
 
-import { withAuth } from "@/providers/authProvider";
+import { withAuth } from "@/providers/UserAuthProvider";
 import { Container, Heading, Text, VStack } from "@chakra-ui/react";
 
 const Home = () => {

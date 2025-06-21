@@ -7,25 +7,30 @@ import {
   useState,
 } from "react";
 import UserModal from "@/components/UserModal";
+import { useDialog } from "@chakra-ui/react";
 
 const AuthContext = createContext<{
   isLoaded: boolean;
   isAuthenticated: boolean;
-  login: (userName: string, jobTitle: string) => void;
-  logout: () => void;
+  setUserInfo: (userName: string, jobTitle: string) => void;
   getUserInfo: () => {
     userName: string | null;
     jobTitle: string | null;
   };
+  openUserModal: () => void;
+  closeUserModal: () => void;
+  logout: () => void;
 }>({
   isLoaded: true,
   isAuthenticated: false,
-  login: () => {},
-  logout: () => {},
+  setUserInfo: () => {},
   getUserInfo: () => ({
     userName: "",
     jobTitle: "",
   }),
+  openUserModal: () => {},
+  closeUserModal: () => {},
+  logout: () => {},
 });
 
 const AUTH_USERNAME = "user_name";
@@ -35,7 +40,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setLoaded] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const login = useCallback((_username: string, _jobTitle: string) => {
+  const dialog = useDialog({
+    closeOnEscape: false,
+    closeOnInteractOutside: false,
+  });
+
+  const setUserInfo = useCallback((_username: string, _jobTitle: string) => {
     localStorage.setItem(AUTH_USERNAME, _username);
     localStorage.setItem(AUTH_JOB_TITLE, _jobTitle);
     setIsAuthenticated(true);
@@ -65,24 +75,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isLoaded, isAuthenticated, login, logout, getUserInfo }}
+      value={{
+        isLoaded,
+        isAuthenticated,
+        setUserInfo,
+        logout,
+        getUserInfo,
+        openUserModal: () => dialog.setOpen(true),
+        closeUserModal: () => dialog.setOpen(false),
+      }}
     >
       {children}
+      <UserModal isLogin={!isAuthenticated} dialog={dialog} />
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within a UserAuthProvider");
+  }
+  return context;
+};
 
 export const withAuth = <T extends object>(
   Component: React.ComponentType<T>
 ) => {
   return function ProtectedRoute(props: T) {
-    const { isLoaded, isAuthenticated } = useAuth();
+    const { isLoaded, isAuthenticated, openUserModal, closeUserModal } =
+      useAuth();
 
-    if (!isAuthenticated && isLoaded) {
-      return <UserModal />;
-    }
+    useEffect(() => {
+      if (!isAuthenticated && isLoaded) {
+        openUserModal();
+      }
+    }, [isAuthenticated, isLoaded, openUserModal, closeUserModal]);
 
     if (isAuthenticated && isLoaded) {
       return <Component {...props} />;

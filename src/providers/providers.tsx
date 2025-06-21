@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "@/lib/apollo-client";
-import { AuthProvider } from "./authProvider";
+import { AuthProvider } from "./UserAuthProvider";
 
 const config = defineConfig({
   theme: {
