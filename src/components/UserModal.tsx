@@ -46,16 +46,29 @@ export default function UserModal({ isLogin = false, dialog }: Props) {
     [dialog, jobTitle, setUserInfo, username]
   );
 
+  const modalTitle = isLogin ? "Login" : "Edit Profile";
+  const modalDescription = isLogin 
+    ? "Enter your username and job title to login" 
+    : "Update your profile information";
+
   return (
     <Dialog.RootProvider value={dialog}>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <DialogContent>
-            <form onSubmit={handleSubmit}>
-              <DialogHeader fontSize="lg" fontWeight="bold">
-                {isLogin ? "Login!" : "Edit Profile"}
+          <DialogContent
+            role="dialog"
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
+            aria-modal="true"
+          >
+            <form onSubmit={handleSubmit} role="form" aria-label={`${modalTitle} form`}>
+              <DialogHeader fontSize="lg" fontWeight="bold" id="modal-title">
+                {modalTitle}
               </DialogHeader>
+              <Text id="modal-description" srOnly>
+                {modalDescription}
+              </Text>
               <Dialog.Body pb="4">
                 <Fieldset.Root>
                   <Fieldset.Content>
@@ -70,21 +83,36 @@ export default function UserModal({ isLogin = false, dialog }: Props) {
                           autoComplete="username"
                           required
                           mt={1}
+                          aria-required="true"
+                          aria-invalid={!username && error ? "true" : "false"}
+                          aria-describedby={error ? "form-error" : undefined}
                         />
                       </label>
                       <label htmlFor="jobTitle">
                         Job Title
                         <Input
                           id="jobTitle"
-                          type="jobTitle"
+                          type="text"
                           value={jobTitle}
                           onChange={(e) => setJobTitle(e.target.value)}
-                          autoComplete="current-jobTitle"
+                          autoComplete="organization-title"
                           required
                           mt={1}
+                          aria-required="true"
+                          aria-invalid={!jobTitle && error ? "true" : "false"}
+                          aria-describedby={error ? "form-error" : undefined}
                         />
                       </label>
-                      {error && <Text color="red.500">{error}</Text>}
+                      {error && (
+                        <Text 
+                          id="form-error" 
+                          color="red.500" 
+                          role="alert" 
+                          aria-live="polite"
+                        >
+                          {error}
+                        </Text>
+                      )}
                     </Flex>
                   </Fieldset.Content>
                 </Fieldset.Root>
@@ -92,11 +120,17 @@ export default function UserModal({ isLogin = false, dialog }: Props) {
               <Dialog.Footer>
                 {!isLogin && (
                   <Dialog.ActionTrigger asChild>
-                    <Button variant="outline">Cancel</Button>
+                    <Button variant="outline" aria-label="Cancel editing profile">
+                      Cancel
+                    </Button>
                   </Dialog.ActionTrigger>
                 )}
-                <Button type="submit" disabled={!!error}>
-                  Save
+                <Button 
+                  type="submit" 
+                  disabled={!!error}
+                  aria-label={`${isLogin ? 'Login' : 'Save'} profile information`}
+                >
+                  {isLogin ? 'Login' : 'Save'}
                 </Button>
               </Dialog.Footer>
             </form>

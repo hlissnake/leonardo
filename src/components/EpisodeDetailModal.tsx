@@ -28,25 +28,50 @@ export default function EpisodeDetailModal({
 }: EpisodeDetailModalProps) {
   if (!episode) return null;
 
+  const episodeInfo = `${episode.episode} • Air Date: ${episode.air_date}`;
+  const characterCount = episode.characters?.length || 0;
+
   return (
     <Dialog.RootProvider value={dialog}>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <DialogContent minW="350px" maxW="90vw">
-            <DialogHeader fontSize="lg" fontWeight="bold">
+          <DialogContent 
+            minW="350px" 
+            maxW="90vw"
+            role="dialog"
+            aria-labelledby="episode-title"
+            aria-describedby="episode-info"
+            aria-modal="true"
+          >
+            <DialogHeader fontSize="lg" fontWeight="bold" id="episode-title">
               {episode.name}
             </DialogHeader>
             <DialogBody>
               <VStack align="start" gap={4}>
-                <Text fontSize="md" color="gray.500">
-                  {episode.episode} &bull; {episode.air_date}
+                <Text 
+                  id="episode-info" 
+                  fontSize="md" 
+                  color="gray.500"
+                  aria-label="Episode information"
+                >
+                  {episodeInfo}
                 </Text>
-                <Box>
-                  <Text fontWeight="semibold" mb={2}>
-                    Characters:
+                <Box role="region" aria-labelledby="characters-heading">
+                  <Text 
+                    id="characters-heading" 
+                    fontWeight="semibold" 
+                    mb={2}
+                    aria-label={`Characters in this episode (${characterCount} total)`}
+                  >
+                    Characters ({characterCount}):
                   </Text>
-                  <Flex gap={3} wrap="wrap">
+                  <Flex 
+                    gap={3} 
+                    wrap="wrap"
+                    role="list"
+                    aria-label="List of characters appearing in this episode"
+                  >
                     {episode.characters?.map(
                       (char) =>
                         char && (
@@ -56,16 +81,23 @@ export default function EpisodeDetailModal({
                             alignItems={"center"}
                             width={100}
                             gap={1}
+                            role="listitem"
+                            aria-label={`Character: ${char.name}`}
                           >
                             <PreloadImage
                               src={char.image ?? ""}
-                              alt={char.name ?? "Character"}
+                              alt={`${char.name} character portrait`}
                               borderRadius="full"
                               objectFit="cover"
                               width={100}
                               height={100}
                             />
-                            <Text fontSize="sm" width="100%" lineClamp={1}>
+                            <Text 
+                              fontSize="sm" 
+                              width="100%" 
+                              lineClamp={1}
+                              aria-label={`Character name: ${char.name}`}
+                            >
                               {char.name}
                             </Text>
                           </Flex>
@@ -77,7 +109,12 @@ export default function EpisodeDetailModal({
             </DialogBody>
             <DialogFooter>
               <Dialog.ActionTrigger asChild>
-                <Button variant="outline">Close</Button>
+                <Button 
+                  variant="outline"
+                  aria-label="Close episode details"
+                >
+                  Close
+                </Button>
               </Dialog.ActionTrigger>
             </DialogFooter>
           </DialogContent>
