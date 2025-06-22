@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Text,
@@ -10,10 +10,12 @@ import {
   Skeleton,
   AspectRatio,
   SkeletonText,
+  useDialog,
 } from "@chakra-ui/react";
 import PreloadImage from "./PreloadImage";
 import Pagination from "./Pagination";
 import { useEpisodesStore } from "@/lib/store";
+import EpisodeDetailModal from "./EpisodeDetailModal";
 
 interface EpisodesGridProps {
   initialPage?: number;
@@ -21,6 +23,8 @@ interface EpisodesGridProps {
 
 export default function EpisodesGrid({ initialPage = 1 }: EpisodesGridProps) {
   const [page, setPage] = useState(initialPage);
+  const [selectedEpisodeId, setSelectedEpisodeId] = useState("");
+
   const {
     fetchEpisodes,
     episodeIdsByPage,
@@ -29,6 +33,19 @@ export default function EpisodesGrid({ initialPage = 1 }: EpisodesGridProps) {
     loading,
     error,
   } = useEpisodesStore();
+
+  const dialog = useDialog({
+    closeOnEscape: false,
+    closeOnInteractOutside: false,
+  });
+
+  const handleEpisodeSelect = useCallback(
+    (episodeId: string) => {
+      setSelectedEpisodeId(episodeId);
+      dialog.setOpen(true);
+    },
+    [dialog]
+  );
 
   useEffect(() => {
     fetchEpisodes(page);
@@ -101,6 +118,7 @@ export default function EpisodesGrid({ initialPage = 1 }: EpisodesGridProps) {
                     position="relative"
                     gap={2}
                     _hover={{ transform: "scale(1.04)" }}
+                    onClick={() => handleEpisodeSelect(episodeId)}
                   >
                     <AspectRatio ratio={1 / 1}>
                       <PreloadImage
@@ -137,6 +155,10 @@ export default function EpisodesGrid({ initialPage = 1 }: EpisodesGridProps) {
           onPageChange={setPage}
         />
       )}
+      <EpisodeDetailModal
+        episode={episodesById[selectedEpisodeId]}
+        dialog={dialog}
+      />
     </VStack>
   );
 }

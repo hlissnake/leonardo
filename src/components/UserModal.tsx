@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  Box,
   Button,
   Input,
   Text,
@@ -12,6 +11,7 @@ import {
   Portal,
   Fieldset,
   UseDialogReturn,
+  Flex,
 } from "@chakra-ui/react";
 import { useAuth } from "@/providers/UserAuthProvider";
 
@@ -59,7 +59,7 @@ export default function UserModal({ isLogin = false, dialog }: Props) {
               <Dialog.Body pb="4">
                 <Fieldset.Root>
                   <Fieldset.Content>
-                    <Box gap="4">
+                    <Flex direction={"column"} gap="4">
                       <label htmlFor="username">
                         Username
                         <Input
@@ -85,7 +85,7 @@ export default function UserModal({ isLogin = false, dialog }: Props) {
                         />
                       </label>
                       {error && <Text color="red.500">{error}</Text>}
-                    </Box>
+                    </Flex>
                   </Fieldset.Content>
                 </Fieldset.Root>
               </Dialog.Body>
