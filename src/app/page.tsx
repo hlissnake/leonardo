@@ -1,7 +1,8 @@
 "use client";
 
 import { withAuth } from "@/providers/UserAuthProvider";
-import { Container, Heading, Text, VStack } from "@chakra-ui/react";
+import { Container, Heading, VStack } from "@chakra-ui/react";
+import EpisodesGrid from "@/components/EpisodesGrid";
 
 const Home = () => {
   return (
@@ -11,11 +12,7 @@ const Home = () => {
           Welcome to Your Next.js App with Chakra UI & Apollo Client!
         </Heading>
 
-        <Text fontSize="lg" textAlign="center" maxW="2xl">
-          This is a Next.js application with Chakra UI v3 and Apollo Client
-          installed and working. You can now use all of Chakra UI&apos;s
-          components and Apollo Client&apos;s GraphQL features in your app.
-        </Text>
+        <EpisodesGrid />
       </VStack>
     </Container>
   );
