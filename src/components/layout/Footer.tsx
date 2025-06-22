@@ -7,7 +7,10 @@ export default function Footer() {
         <Text fontSize="sm" color="gray.500">
           &copy; {new Date().getFullYear()} Leonardo. All rights reserved.
         </Text>
+        <Text fontSize="md">
+          Challenge Brief (v3.5)
+        </Text>
       </Container>
     </Box>
   );
-} 
+}
