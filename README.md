@@ -22,6 +22,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 https://leonardo-taupe.vercel.app/
 
+Use `page` url param to navigate to specific page: https://leonardo-taupe.vercel.app?page=2
+Navigating page in the app won't change URL, the URL only works for initial page navigating
 
 # Leonardo App Architecture
 
