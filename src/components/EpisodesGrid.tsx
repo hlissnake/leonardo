@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Text,
@@ -11,18 +11,29 @@ import {
   AspectRatio,
   SkeletonText,
 } from "@chakra-ui/react";
-import { useEpisodes } from "@/hooks/useEpisodes";
 import PreloadImage from "./PreloadImage";
 import Pagination from "./Pagination";
+import { useEpisodesStore } from "@/lib/store";
 
 export default function EpisodesGrid() {
-  const [page, setPage] = useState(0);
-  const { data, loading, error } = useEpisodes(page);
+  const [page, setPage] = useState(1);
+  const {
+    fetchEpisodes,
+    episodeIdsByPage,
+    episodesById,
+    pageInfo,
+    loading,
+    error,
+  } = useEpisodesStore();
+
+  useEffect(() => {
+    fetchEpisodes(page);
+  }, [fetchEpisodes, page]);
 
   if (error) {
     return (
       <Box textAlign="center" py={4}>
-        <Text color="red.500">Error loading episodes: {error.message}</Text>
+        <Text color="red.500">Error loading episodes: {error}</Text>
       </Box>
     );
   }
@@ -30,10 +41,10 @@ export default function EpisodesGrid() {
   return (
     <VStack gap={6}>
       {/* Pagination */}
-      {data?.episodes?.info && data.episodes.info.count && (
+      {pageInfo && pageInfo.count && (
         <Pagination
           currentPage={page}
-          totalCount={data.episodes.info.count}
+          totalCount={pageInfo.count}
           onPageChange={setPage}
         />
       )}
@@ -71,20 +82,21 @@ export default function EpisodesGrid() {
           </>
         ) : (
           <>
-            {data?.episodes?.results?.map(
-              (episode) =>
+            {episodeIdsByPage[page]?.map((episodeId) => {
+              const episode = episodesById[episodeId];
+              return (
                 episode && (
                   <GridItem
-                    key={episode.id}
+                    key={episodeId}
                     border="1px"
                     borderColor="gray.200"
                     borderRadius="md"
                     backgroundColor="gray.200"
                     cursor={"pointer"}
-                    _hover={{ transform: "scale(1.04)" }}
                     transition="transform 0.3s"
                     position="relative"
                     gap={2}
+                    _hover={{ transform: "scale(1.04)" }}
                   >
                     <AspectRatio ratio={1 / 1}>
                       <PreloadImage
@@ -95,23 +107,29 @@ export default function EpisodesGrid() {
                       />
                     </AspectRatio>
                     <Box p={3}>
-                      <Text fontWeight="bold" fontSize="lg">
+                      <Text
+                        fontWeight="bold"
+                        fontSize="lg"
+                        width="100%"
+                        lineClamp={1}
+                      >
                         {episode.name}
                       </Text>
                       <Text fontSize="sm">{episode.episode}</Text>
                     </Box>
                   </GridItem>
                 )
-            )}
+              );
+            })}
           </>
         )}
       </Grid>
 
       {/* Pagination */}
-      {data?.episodes?.info && data.episodes.info.count && (
+      {pageInfo && pageInfo.count && (
         <Pagination
           currentPage={page}
-          totalCount={data.episodes.info.count}
+          totalCount={pageInfo.count}
           onPageChange={setPage}
         />
       )}

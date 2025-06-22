@@ -36,7 +36,7 @@ const AuthContext = createContext<{
 const AUTH_USERNAME = "user_name";
 const AUTH_JOB_TITLE = "job_title";
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function UserAuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setLoaded] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
