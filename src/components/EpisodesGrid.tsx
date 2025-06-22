@@ -15,8 +15,12 @@ import PreloadImage from "./PreloadImage";
 import Pagination from "./Pagination";
 import { useEpisodesStore } from "@/lib/store";
 
-export default function EpisodesGrid() {
-  const [page, setPage] = useState(1);
+interface EpisodesGridProps {
+  initialPage?: number;
+}
+
+export default function EpisodesGrid({ initialPage = 1 }: EpisodesGridProps) {
+  const [page, setPage] = useState(initialPage);
   const {
     fetchEpisodes,
     episodeIdsByPage,
