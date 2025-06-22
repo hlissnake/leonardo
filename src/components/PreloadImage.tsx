@@ -55,7 +55,6 @@ export default function PreloadImage({
       height={height}
       borderRadius={borderRadius}
       overflow="hidden"
-      bg="gray.100"
     >
       {hasError && !fallbackSrc && (
         <Box

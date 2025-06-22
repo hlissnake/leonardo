@@ -9,7 +9,7 @@ const Home = () => {
     <Container maxW="container.xl" py={10}>
       <VStack gap={8} alignItems="center">
         <Heading size="2xl" color="blue.600">
-          Welcome to Your Next.js App with Chakra UI & Apollo Client!
+          Rick and Morty Episodes
         </Heading>
 
         <EpisodesGrid />

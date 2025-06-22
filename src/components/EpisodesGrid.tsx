@@ -6,15 +6,17 @@ import {
   Text,
   VStack,
   Grid,
-  Heading,
-  Spinner,
+  GridItem,
+  Skeleton,
+  AspectRatio,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { useEpisodes } from "@/hooks/useEpisodes";
 import PreloadImage from "./PreloadImage";
 import Pagination from "./Pagination";
 
 export default function EpisodesGrid() {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const { data, loading, error } = useEpisodes(page);
 
   if (error) {
@@ -27,74 +29,91 @@ export default function EpisodesGrid() {
 
   return (
     <VStack gap={6}>
-      <Heading size="md" textAlign="center">
-        Rick and Morty Episodes
-      </Heading>
+      {/* Pagination */}
+      {data?.episodes?.info && data.episodes.info.count && (
+        <Pagination
+          currentPage={page}
+          totalCount={data.episodes.info.count}
+          onPageChange={setPage}
+        />
+      )}
 
-      {loading ? (
-        <Box textAlign="center" py={8}>
-          <Spinner size="lg" />
-          <Text mt={2}>Loading episodes...</Text>
-        </Box>
-      ) : (
-        <>
-          {/* Pagination */}
-          {data?.episodes?.info && data.episodes.info.pages && (
-            <Pagination
-              currentPage={page}
-              totalPages={data.episodes.info.pages}
-              onPageChange={setPage}
-            />
-          )}
-
-          {/* Episodes Grid */}
-          <Grid
-            templateColumns={{
-              base: "repeat(2, 1fr)",
-              md: "repeat(4, 1fr)",
-              xl: "repeat(5, 1fr)",
-            }}
-            gap={3}
-          >
+      {/* Episodes Grid */}
+      <Grid
+        templateColumns={{
+          base: "repeat(2, 1fr)",
+          md: "repeat(4, 1fr)",
+          xl: "repeat(5, 1fr)",
+        }}
+        gap={3}
+      >
+        {loading ? (
+          <>
+            {Array(20)
+              .fill(0)
+              .map((_, index) => (
+                <GridItem
+                  key={index}
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  position="relative"
+                  overflow="hidden"
+                  width="16rem"
+                >
+                  <AspectRatio ratio={1 / 1}>
+                    <Skeleton height="100%" width="100%" />
+                  </AspectRatio>
+                  <Box p={3}>
+                    <SkeletonText noOfLines={2} />
+                  </Box>
+                </GridItem>
+              ))}
+          </>
+        ) : (
+          <>
             {data?.episodes?.results?.map(
               (episode) =>
                 episode && (
-                  <Box
+                  <GridItem
                     key={episode.id}
                     border="1px"
                     borderColor="gray.200"
                     borderRadius="md"
+                    backgroundColor="gray.200"
                     cursor={"pointer"}
                     _hover={{ transform: "scale(1.04)" }}
                     transition="transform 0.3s"
                     position="relative"
-                    aspectRatio="1/1"
                     gap={2}
                   >
-                    <PreloadImage
-                      src={episode.characters?.[0]?.image ?? ""}
-                      alt="Description"
-                      borderRadius="md"
-                      objectFit="cover"
-                    />
-                    <Box
-                      position={"absolute"}
-                      left={0}
-                      right={0}
-                      bottom={0}
-                      width="100%"
-                      p={3}
-                    >
+                    <AspectRatio ratio={1 / 1}>
+                      <PreloadImage
+                        src={episode.characters?.[0]?.image ?? ""}
+                        alt="Description"
+                        borderRadius="md"
+                        objectFit="cover"
+                      />
+                    </AspectRatio>
+                    <Box p={3}>
                       <Text fontWeight="bold" fontSize="lg">
                         {episode.name}
                       </Text>
                       <Text fontSize="sm">{episode.episode}</Text>
                     </Box>
-                  </Box>
+                  </GridItem>
                 )
             )}
-          </Grid>
-        </>
+          </>
+        )}
+      </Grid>
+
+      {/* Pagination */}
+      {data?.episodes?.info && data.episodes.info.count && (
+        <Pagination
+          currentPage={page}
+          totalCount={data.episodes.info.count}
+          onPageChange={setPage}
+        />
       )}
     </VStack>
   );

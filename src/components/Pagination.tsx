@@ -1,64 +1,53 @@
 "use client";
 
 import {
-  Box,
-  Button,
-  HStack,
-  Text,
+  ButtonGroup,
+  Pagination as ChakraPagination,
+  IconButton,
 } from "@chakra-ui/react";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 interface PaginationProps {
   currentPage: number;
-  totalPages: number;
+  totalCount: number;
   onPageChange: (page: number) => void;
-  showPageInfo?: boolean;
-  size?: "sm" | "md" | "lg";
 }
+
+const ITEMS_PER_PAGES = 20;
 
 export default function Pagination({
   currentPage,
-  totalPages,
+  totalCount,
   onPageChange,
-  showPageInfo = true,
-  size = "md",
 }: PaginationProps) {
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      onPageChange(currentPage - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      onPageChange(currentPage + 1);
-    }
-  };
-
   return (
-    <Box textAlign="center" p={4} bg="gray.50" borderRadius="md">
-      {showPageInfo && (
-        <Text fontSize="sm" mb={2}>
-          Page {currentPage} of {totalPages}
-        </Text>
-      )}
-      <HStack justify="center" gap={2}>
-        <Button
-          size={size}
-          disabled={currentPage <= 1}
-          onClick={handlePrevious}
-          variant="outline"
-        >
-          Previous
-        </Button>
-        <Button
-          size={size}
-          disabled={currentPage >= totalPages}
-          onClick={handleNext}
-          variant="outline"
-        >
-          Next
-        </Button>
-      </HStack>
-    </Box>
+    <ChakraPagination.Root
+      count={totalCount}
+      page={currentPage}
+      pageSize={ITEMS_PER_PAGES}
+      onPageChange={(e) => onPageChange(e.page)}
+    >
+      <ButtonGroup variant="ghost" size="sm">
+        <ChakraPagination.PrevTrigger asChild>
+          <IconButton>
+            <LuChevronLeft />
+          </IconButton>
+        </ChakraPagination.PrevTrigger>
+
+        <ChakraPagination.Items
+          render={(page) => (
+            <IconButton variant={{ base: "ghost", _selected: "outline" }}>
+              {page.value}
+            </IconButton>
+          )}
+        />
+
+        <ChakraPagination.NextTrigger asChild>
+          <IconButton>
+            <LuChevronRight />
+          </IconButton>
+        </ChakraPagination.NextTrigger>
+      </ButtonGroup>
+    </ChakraPagination.Root>
   );
-} 
+}
