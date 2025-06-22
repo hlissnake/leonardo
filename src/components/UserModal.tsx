@@ -24,14 +24,14 @@ export default function UserModal({ isLogin = false, dialog }: Props) {
   const { setUserInfo, getUserInfo } = useAuth();
   const userInfo = getUserInfo();
 
-  const [username, setUsername] = useState(userInfo.userName || "");
-  const [jobTitle, setJobTitle] = useState(userInfo.jobTitle || "");
+  const [username, setUsername] = useState(userInfo?.userName || "");
+  const [jobTitle, setJobTitle] = useState(userInfo?.jobTitle || "");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setUsername(userInfo.userName || "");
-    setJobTitle(userInfo.jobTitle || "");
-  }, [userInfo.userName, userInfo.jobTitle]);
+    setUsername(userInfo?.userName || "");
+    setJobTitle(userInfo?.jobTitle || "");
+  }, [userInfo?.userName, userInfo?.jobTitle]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {

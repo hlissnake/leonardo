@@ -35,7 +35,7 @@ export default function Header() {
         {isAuthenticated && (
           <Dropdown
             items={dropdownItems}
-            triggerText={userInfo.userName || "User"}
+            triggerText={userInfo?.userName || "User"}
             onAction={handleDropdownAction}
           />
         )}

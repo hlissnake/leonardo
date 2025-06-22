@@ -13,10 +13,12 @@ const AuthContext = createContext<{
   isLoaded: boolean;
   isAuthenticated: boolean;
   setUserInfo: (userName: string, jobTitle: string) => void;
-  getUserInfo: () => {
-    userName: string | null;
-    jobTitle: string | null;
-  };
+  getUserInfo: () =>
+    | {
+        userName: string | null;
+        jobTitle: string | null;
+      }
+    | undefined;
   openUserModal: () => void;
   closeUserModal: () => void;
   logout: () => void;
@@ -46,18 +48,21 @@ export function UserAuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const setUserInfo = useCallback((_username: string, _jobTitle: string) => {
+    if (typeof window === "undefined") return;
     localStorage.setItem(AUTH_USERNAME, _username);
     localStorage.setItem(AUTH_JOB_TITLE, _jobTitle);
     setIsAuthenticated(true);
   }, []);
 
   const logout = useCallback(() => {
+    if (typeof window === "undefined") return;
     localStorage.removeItem(AUTH_USERNAME);
     localStorage.removeItem(AUTH_JOB_TITLE);
     setIsAuthenticated(false);
   }, []);
 
   const getUserInfo = useCallback(() => {
+    if (typeof window === "undefined") return;
     const userName = localStorage.getItem(AUTH_USERNAME);
     const jobTitle = localStorage.getItem(AUTH_JOB_TITLE);
     return {
