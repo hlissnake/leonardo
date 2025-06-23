@@ -108,16 +108,20 @@ This document describes the core architecture of the Leonardo app, focusing on a
 App (Root)
 └─ RootProviders
    ├─ UserModal (login/profile modal)
+   |
    └─ Layout
       ├─ Header
-      │  ├─ Dropdown (User Avatar)
+      │  └─ Dropdown (User Avatar)
+      |
       ├─ Main Content
-      │  └─ Home Page (page.tsx)
-      │     └─ HOC withAuth
+      │  └─ HOC withAuth
+      │     └─ Home Page (page.tsx)
       │         └─ EpisodesGrid
       │             ├─ Pagination
+      |             |
       │             └─ GirdItem
       |             │  └─ PreloadImage (for episode images)
+      |             |
       │             └─ EpisodeDetailModal
       │                └─ PreloadImage (for character images)
       └─ Footer
